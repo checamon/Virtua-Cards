@@ -14,10 +14,11 @@ public class Card {
     private TextureRegion card;
     private Point position;
     private Sprite cardSprite;
+    private Sprite backSprite;
     private float sizeX;
     private float sizeY;
     private int id;
-    //private boolean faceUp;
+    private boolean faceUp;
     //private boolean onTable;
     //private float orientation;
 
@@ -43,18 +44,23 @@ public class Card {
         this.position = new Point(100f, 100f);
     }
 
-    public Card(TextureRegion region, int id) {
+    public Card(TextureRegion region, int id, TextureRegion backRegion) {
 
         this.card = region;
-        this.cardSprite = new Sprite(region);
         this.sizeX = 100f;
         this.sizeY = 130f;
-        this.cardSprite.setSize(sizeX, sizeY);
         this.position = new Point(100f, 100f);
+        this.cardSprite = new Sprite(region);
+        this.cardSprite.setSize(sizeX, sizeY);
         this.cardSprite.setPosition(position.getX(), position.getY());
+        this.backSprite = new Sprite(backRegion);
+        this.backSprite.setSize(sizeX, sizeY);
+        this.backSprite.setPosition(position.getX(), position.getY());
         this.id = id;
+        this.faceUp = false;
     }
 
+/*
     public void drawCardSprite(SpriteBatch batch,Point point, float sizeX, float sizeY){
         this.cardSprite.setPosition(point.getX(), point.getY());
         this.cardSprite.setSize(sizeX, sizeY);
@@ -69,10 +75,14 @@ public class Card {
         //this.sizeX = sizeX;
         //this.sizeY = sizeY;
     }
+*/
 
     public void drawCardSprite(SpriteBatch batch){
         //this.cardSprite.setCenter(this.cardSprite.getX() + 1, this.cardSprite.getY() + 1);
-        this.cardSprite.draw(batch);
+        if (faceUp)
+            this.cardSprite.draw(batch);
+        else
+            this.backSprite.draw(batch);
     }
 
     public boolean isTouched(float x, float y){
@@ -91,7 +101,12 @@ public class Card {
     }
 
     public Rectangle getCardRectangle(){
-        return this.cardSprite.getBoundingRectangle();
+        Rectangle r;
+        if (faceUp)
+            r = this.cardSprite.getBoundingRectangle();
+        else
+            r = this.backSprite.getBoundingRectangle();
+        return r;
     }
 
     public void setSize(float sizeX, float sizeY){
@@ -109,15 +124,19 @@ public class Card {
     }
 
     public void setPosition(Point position) {
-
         this.cardSprite.setPosition(position.getX(), position.getY());
+        this.backSprite.setPosition(position.getX(), position.getY());
         this.position.setCoordinates(position.getX(),position.getY());
     }
 
     public void setCenter(Point position) {
-
         this.cardSprite.setCenter(position.getX(), position.getY());
+        this.backSprite.setCenter(position.getX(), position.getY());
         this.position.setCoordinates(position.getX(),position.getY());
+    }
+
+    public void toggleFaceUp(){
+        faceUp = !faceUp;
     }
 
     public Sprite getCardSprite() {
@@ -126,5 +145,21 @@ public class Card {
 
     public int getId() {
         return id;
+    }
+
+    public boolean isFaceUp() {
+        return faceUp;
+    }
+
+    public void setFaceUp(boolean faceUp) {
+        this.faceUp = faceUp;
+    }
+
+    public Sprite getBackSprite() {
+        return backSprite;
+    }
+
+    public void setBackSprite(Sprite backSprite) {
+        this.backSprite = backSprite;
     }
 }

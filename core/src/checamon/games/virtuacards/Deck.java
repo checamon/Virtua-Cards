@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -16,6 +17,7 @@ public class Deck {
     private ArrayList<Card> cards;
     private HashMap<Integer,Integer> drawOrder;
     private int numberOfCards;
+    //private ArrayList<Deck> subdecks;
 
     public Deck(Texture texture) {
         try {
@@ -27,7 +29,7 @@ public class Deck {
             int index = 0;
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 13; j++){
-                    this.cards.add(index, new Card(cc[i][j], index));
+                    this.cards.add(index, new Card(cc[i][j], index, cc[4][2]));
                     this.drawOrder.put(index, -1);
                     index++;
                 }
@@ -141,10 +143,79 @@ public class Deck {
         return cardResult;
     }
 
+    public Card getTouchedCard(float x, float y, int top){
+
+        Card cardResult = null;
+        int i = top;
+        boolean exit = false;
+
+        while (i >= 0 && !exit){
+            if (drawOrder.get(i) > -1 && cards.get(drawOrder.get(i)).isTouched(x, y)) {
+                cardResult = cards.get(drawOrder.get(i));
+                exit = true;
+            }else{
+                i--;
+            }
+        }
+        return cardResult;
+    }
+
     private void setCardDrawOrderOnTop(int index){
-        int replace = drawOrder.get(numberOfCards);
-        drawOrder.put(numberOfCards,drawOrder.get(index));
-        drawOrder.put(index, replace);
+
+        int i = index;
+        int next = 0;
+        int replace = drawOrder.get(index);;
+
+        while (i <= numberOfCards){
+            if (i < numberOfCards) {
+                next = drawOrder.get(i + 1);
+                drawOrder.put(i,next);
+                i++;
+            }else{
+                drawOrder.put(i,replace);
+                i++;
+
+            }
+        }
+    }
+
+    private void setRandomCardDraw(ArrayList<Integer> subDeck){
+        ArrayList<Integer> originalOrder = (ArrayList<Integer>) subDeck.clone();
+
+        Collections.shuffle(subDeck);
+        Integer replace;
+        for (int i = 0; i < originalOrder.size(); i++){
+            replace = drawOrder.get(originalOrder.get(i));
+            drawOrder.put(originalOrder.get(i),drawOrder.get(subDeck.get(i)));
+            if (i < originalOrder.size() - 1)
+                drawOrder.put(subDeck.get(i),replace);
+        }
+
+    }
+
+    public void shuffle(float x, float y){
+        ArrayList<Integer> subDeck = new ArrayList<Integer>();
+        Card c;
+        int top = numberOfCards - 1;
+        int i = numberOfCards - 1;
+        int index = 0;
+        boolean exit = false;
+
+        while (i >= 0  && !exit){
+            c = this.getTouchedCard(x,y,top);
+            if (c == null)
+                exit = true;
+            else{
+                subDeck.add(index,c.getId());
+                top = c.getId() - 1;
+                index++;
+            }
+        }
+
+        if (!subDeck.isEmpty()){
+            setRandomCardDraw(subDeck);
+        }
+
     }
 
     public HashMap<Integer,Integer> getDrawOrder() {

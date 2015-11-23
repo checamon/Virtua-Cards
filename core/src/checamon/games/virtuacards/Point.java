@@ -35,19 +35,19 @@ public class Point {
         return result;
     }
 
-    public boolean insideRightSquare(float deltaX, float deltaY)
+    public boolean insideRightSquare(float deltaX, float deltaY, float originalY)
     {
         boolean result = false;
-        if (x <= x + deltaX && y <= y + (deltaY/2) && y > y - (deltaY/2))
+        if (x <= x + deltaX && y <= originalY + (deltaY/2) && y > originalY - (deltaY/2))
             result = true;
 
         return result;
     }
 
-    public boolean insideLeftSquare(float deltaX, float deltaY)
+    public boolean insideLeftSquare(float deltaX, float deltaY, float originalY)
     {
         boolean result = false;
-        if (x >= x - deltaX && y <= y + (deltaY/2) && y > y - (deltaY/2))
+        if (x >= x - deltaX && y <= originalY + (deltaY/2) && y > originalY - (deltaY/2))
             result = true;
 
         return result;
@@ -69,7 +69,7 @@ public class Point {
                     if (direction == 0)
                         direction++; // Always 1 when going to the right
 
-                    if (!p.insideRightSquare(deltaX,deltaY) || direction > 1) //Already changed direction to the left and now has come back to the right or outside the range
+                    if (!p.insideRightSquare(deltaX,deltaY, points.get(0).getY()) || direction > 1) //Already changed direction to the left and now has come back to the right or outside the range
                     {
                         result = false;
                         break;
@@ -79,7 +79,7 @@ public class Point {
                     if (direction == 1)
                         direction++; // Always 2 when going to the left
 
-                    if (!p.insideLeftSquare(deltaX, deltaY) || direction == 0 || direction > 2) //Already changed direction several times or has started going left or outside range
+                    if (!p.insideLeftSquare(deltaX, deltaY, points.get(0).getY()) || direction == 0 || direction > 2) //Already changed direction several times or has started going left or outside range
                     {
                         result = false;
                         break;
