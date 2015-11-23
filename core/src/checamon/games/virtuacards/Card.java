@@ -16,6 +16,7 @@ public class Card {
     private Sprite cardSprite;
     private float sizeX;
     private float sizeY;
+    private int id;
     //private boolean faceUp;
     //private boolean onTable;
     //private float orientation;
@@ -42,7 +43,7 @@ public class Card {
         this.position = new Point(100f, 100f);
     }
 
-    public Card(TextureRegion region) {
+    public Card(TextureRegion region, int id) {
 
         this.card = region;
         this.cardSprite = new Sprite(region);
@@ -51,6 +52,7 @@ public class Card {
         this.cardSprite.setSize(sizeX, sizeY);
         this.position = new Point(100f, 100f);
         this.cardSprite.setPosition(position.getX(), position.getY());
+        this.id = id;
     }
 
     public void drawCardSprite(SpriteBatch batch,Point point, float sizeX, float sizeY){
@@ -120,5 +122,9 @@ public class Card {
 
     public Sprite getCardSprite() {
         return this.cardSprite;
+    }
+
+    public int getId() {
+        return id;
     }
 }

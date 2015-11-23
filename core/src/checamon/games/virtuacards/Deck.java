@@ -1,7 +1,6 @@
 package checamon.games.virtuacards;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -17,7 +16,6 @@ public class Deck {
     private ArrayList<Card> cards;
     private HashMap<Integer,Integer> drawOrder;
     private int numberOfCards;
-    private Sprite result;
 
     public Deck(Texture texture) {
         try {
@@ -29,7 +27,7 @@ public class Deck {
             int index = 0;
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 13; j++){
-                    this.cards.add(index, new Card(cc[i][j]));
+                    this.cards.add(index, new Card(cc[i][j], index));
                     this.drawOrder.put(index, -1);
                     index++;
                 }
@@ -58,20 +56,14 @@ public class Deck {
         }
     }
 
-    public void drawCards(SpriteBatch batch)
-    {
-        boolean exit = false;
-        Sprite aux;
-        int i = 0;
-        while (i < numberOfCards && !exit){
-            if (drawOrder.get(i) > -1){
-                cards.get(drawOrder.get(i)).drawCardSprite(batch);
-                i++;
-            }
-            else
-                exit = true;
-        }
+    public void drawCards(SpriteBatch batch) {
 
+        int i = 0;
+        while (i <= numberOfCards){
+            if (drawOrder.get(i) > -1)
+                cards.get(drawOrder.get(i)).drawCardSprite(batch);
+            i++;
+        }
     }
 
     public boolean isTouchingCard(float x, float y){
@@ -80,16 +72,14 @@ public class Deck {
         boolean result = false;
         int i = 0;
 
-        while (i < numberOfCards && !exit){
+        while (i <= numberOfCards && !exit){
             if (drawOrder.get(i) > -1){
-                if (cards.get(drawOrder.get(i)).isTouched(x,y)) {
+                if (cards.get(drawOrder.get(i)).isTouched(x, y)) {
                     result = true;
                     exit = true;
                 }
-                i++;
             }
-            else
-                exit = true;
+            i++;
         }
         return result;
     }
@@ -100,64 +90,61 @@ public class Deck {
         boolean result = false;
         int i = 0;
 
-        while (i < numberOfCards && !exit){
+        while (i <= numberOfCards && !exit){
             if (drawOrder.get(i) > -1){
                 if (cards.get(drawOrder.get(i)).isTouchedDragged(x, y)) {
                     result = true;
                     exit = true;
                 }
-                i++;
             }
-            else
-                exit = true;
+            i++;
         }
         return result;
     }
 
     public Card getTouchedDraggedCard(float x, float y){
 
-        boolean exit = false;
-        this.result = null;
         Card cardResult = null;
-        int i = 0;
+        int i = numberOfCards;
+        boolean exit = false;
 
-        while (i < numberOfCards && !exit){
-            if (drawOrder.get(i) > -1){
+        while (i >= 0 && !exit){
                 if (cards.get(drawOrder.get(i)).isTouchedDragged(x, y)) {
-
-                    this.result = cards.get(drawOrder.get(i)).getCardSprite();
                     cardResult = cards.get(drawOrder.get(i));
                     exit = true;
+                }else {
+                    i--;
                 }
-                i++;
             }
-            else
-                exit = true;
-        }
+        if (i < numberOfCards)
+            setCardDrawOrderOnTop(i);
         return cardResult;
     }
 
     public Card getTouchedCard(float x, float y){
 
-        boolean exit = false;
-        this.result = null;
         Card cardResult = null;
-        int i = 0;
+        int i = numberOfCards;
+        boolean exit = false;
 
-        while (i < numberOfCards && !exit){
-            if (drawOrder.get(i) > -1){
-                if (cards.get(drawOrder.get(i)).isTouched(x, y)) {
-
-                    this.result = cards.get(drawOrder.get(i)).getCardSprite();
+        while (i >= 0 && !exit){
+                if (drawOrder.get(i) > -1 && cards.get(drawOrder.get(i)).isTouched(x, y)) {
                     cardResult = cards.get(drawOrder.get(i));
                     exit = true;
+                }else{
+                    i--;
                 }
-                i++;
-            }
-            else
-                exit = true;
         }
+        if (i < numberOfCards)
+            setCardDrawOrderOnTop(i);
+
         return cardResult;
+    }
+
+    private void setCardDrawOrderOnTop(int index){
+        int replace = drawOrder.get(numberOfCards);
+        drawOrder.put(numberOfCards,drawOrder.get(index));
+        drawOrder.put(index, replace);
     }
 
     public HashMap<Integer,Integer> getDrawOrder() {
