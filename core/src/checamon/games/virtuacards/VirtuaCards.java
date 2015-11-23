@@ -4,77 +4,35 @@ package checamon.games.virtuacards;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
 
 
 public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
-	SpriteBatch batch;
-	Sprite sprite;
-	Texture img, deck1;
-	BitmapFont font;
-	String debugText;
+	private SpriteBatch batch;
 
-	TextureRegion deck1region;
-	TextureRegion[][] regions;
-	TextureRegion deck2region;
-	Sprite sprite2;
-
-	private float x, y;
 	private int dragCounter;
+	private int cardCounter;
 	private ArrayList<Point> dragBuffer;
-	private Sprite touchedSprite;
 
-	Deck fullDeck;
-	Texture deck;
-
-	int cardCounter = 0;
+	private Deck fullDeck;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		//img = new Texture("badlogic.jpg");
-		deck1 = new Texture("deck1pic.png");
-		TextureRegion[][] cc = new TextureRegion(deck1).split(deck1.getWidth()/2,deck1.getHeight()/2);
-		deck1region = new TextureRegion(cc[0][0]);
-		deck2region = new TextureRegion(cc[0][1]);
-
-		try {
-			deck = new Texture("full_french_deck.png");
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-		font = new BitmapFont();
-		font.setColor(Color.BLUE);
-		//sprite = new Sprite(deck1);
-		sprite = new Sprite(deck1region);
-
-		sprite2 = new Sprite(deck2region);
-		sprite2.setPosition(50f, 50f);
-		sprite2.scale(-0.75f);
-
-		x = 0;
-		y = 0;
-		sprite.setPosition(x, y);
-		sprite.scale(-0.75f);
-
-		debugText = "LOADING ...";
-		if (deck == null)
-			debugText += " DECK IS NULL";
+		dragBuffer = new ArrayList<Point>();
 		dragCounter = 0;
-		dragBuffer = new ArrayList();
+		cardCounter = 0;
 
-		fullDeck = new Deck(deck);
-		touchedSprite = null;
+		fullDeck = new Deck(new Texture("full_french_deck.png"));
 
-		fullDeck.getDrawOrder().put(0, 13);
+		//init drawn cards
+		fullDeck.getDrawOrder().put(0,11);
+		fullDeck.getDrawOrder().put(1,2);
+		fullDeck.getCards().get(2).setPosition(new Point (200f,300f));
 	}
 
 	@Override
@@ -83,18 +41,9 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Gdx.input.setInputProcessor(this);
 		batch.begin();
-		//sprite.draw(batch);
-		//sprite2.draw(batch);
 
 		fullDeck.drawCards(batch);
 
-/*
-		if (touchedSprite != null)
-			touchedSprite.draw(batch);
-*/
-
-
-		//font.draw(batch, debugText, 20, 40);
 		batch.end();
 
 	}
@@ -109,21 +58,25 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		//deck
-		 if (fullDeck.isTouchingCard(screenX, Gdx.graphics.getHeight() - screenY)){
-			fullDeck.getTouchedCard(screenX, Gdx.graphics.getHeight() - screenY).setPosition(new Point(screenX, Gdx.graphics.getHeight() - screenY));
-			/*touchedSprite = fullDeck.getTouchedCard(screenX, Gdx.graphics.getHeight() - screenY).getCardSprite();
-			if (touchedSprite != null)
-				touchedSprite.setCenter(screenX, Gdx.graphics.getHeight() - screenY);*/
-			cardCounter++;
-/*
-			debugText = "Card: X="  + String.valueOf(touchedSprite.getX()) + ", Y="  + String.valueOf(touchedSprite.getY()) +
-					"; Touch X=" + String.valueOf(screenX) + ", Y=" + String.valueOf( Gdx.graphics.getHeight() - screenY) + " DragCounter=" + String.valueOf(dragCounter) +
-					" DragBuffer Length: " + String.valueOf(dragBuffer.size()) + " Touch Card Counter = " + toString().valueOf(cardCounter);
-*/
+		if (dragCounter == 0) {
+			if (fullDeck.isTouchingCard(screenX, Gdx.graphics.getHeight() - screenY)) {
+				fullDeck.getTouchedCard(screenX, Gdx.graphics.getHeight() - screenY).setCenter(new Point(screenX, Gdx.graphics.getHeight() - screenY));
+
+				dragBuffer.add(dragCounter, new Point(screenX, Gdx.graphics.getHeight() - screenY));
+				dragCounter++;
+			}
 		}
-		else if (dragCounter > 0) {
+		else if (fullDeck.isTouchingDraggedCard(screenX, Gdx.graphics.getHeight() - screenY)) {
+			fullDeck.getTouchedDraggedCard(screenX, Gdx.graphics.getHeight() - screenY).setCenter(new Point(screenX, Gdx.graphics.getHeight() - screenY));
+
+			dragBuffer.add(dragCounter, new Point(screenX, Gdx.graphics.getHeight() - screenY));
+			dragCounter++;
+			cardCounter++;
+		}
+		else {
 			dragCounter = 0;
 			dragBuffer.clear();
+			cardCounter = 0;
 		}
 
 		return true;
@@ -169,18 +122,6 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 	 */
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		debugText = "Touch DOWN X=" + String.valueOf(screenX) + ", Y=" + String.valueOf(screenY) + " Image X=" +
-				String.valueOf(sprite.getX()) + " Y=" + String.valueOf(sprite.getY()) + " DragCounter=" + String.valueOf(dragCounter) + " DragBuffer Length: " + String.valueOf(dragBuffer.size());;
-
-		/*Rectangle r =  sprite.getBoundingRectangle();
-
-		if (r.contains(screenX,Gdx.graphics.getHeight() - screenY)) // It is touching the deck
-		{
-			batch.begin();
-			sprite.draw(batch);
-			batch.end();
-		}
-*/
 
 		dragCounter = 0;
 		dragBuffer.clear();
@@ -199,19 +140,7 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
-		if (Point.pointListInsideDoubleTouchedDrag(dragBuffer, 75, 50) && dragCounter > 0)
-		{//double swipe, left/right recognised
-			debugText = "DoubleSwipe UP X=" + String.valueOf(screenX) + ", Y=" + String.valueOf(screenY) + " Image X=" +
-					String.valueOf(sprite.getX()) + " Y=" + String.valueOf(sprite.getY()) + " DragCounter=" + String.valueOf(dragCounter) + " DragBuffer Length: " + String.valueOf(dragBuffer.size());
-
-			//fullDeck.getDrawOrder().put(0, 11);
-		}
-		else
-		{
-			debugText = "Touch UP X=" + String.valueOf(screenX) + ", Y=" + String.valueOf(screenY) + " Image X=" +
-					String.valueOf(sprite.getX()) + " Y=" + String.valueOf(sprite.getY()) + " DragCounter=" + String.valueOf(dragCounter) + " DragBuffer Length: " + String.valueOf(dragBuffer.size());
-
-		}
+		//if (Point.pointListInsideDoubleTouchedDrag(dragBuffer, 75, 50) && dragCounter > 0)
 
 		dragCounter = 0;
 		dragBuffer.clear();

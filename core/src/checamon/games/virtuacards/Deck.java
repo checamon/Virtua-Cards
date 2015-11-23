@@ -94,6 +94,49 @@ public class Deck {
         return result;
     }
 
+    public boolean isTouchingDraggedCard(float x, float y){
+
+        boolean exit = false;
+        boolean result = false;
+        int i = 0;
+
+        while (i < numberOfCards && !exit){
+            if (drawOrder.get(i) > -1){
+                if (cards.get(drawOrder.get(i)).isTouchedDragged(x, y)) {
+                    result = true;
+                    exit = true;
+                }
+                i++;
+            }
+            else
+                exit = true;
+        }
+        return result;
+    }
+
+    public Card getTouchedDraggedCard(float x, float y){
+
+        boolean exit = false;
+        this.result = null;
+        Card cardResult = null;
+        int i = 0;
+
+        while (i < numberOfCards && !exit){
+            if (drawOrder.get(i) > -1){
+                if (cards.get(drawOrder.get(i)).isTouchedDragged(x, y)) {
+
+                    this.result = cards.get(drawOrder.get(i)).getCardSprite();
+                    cardResult = cards.get(drawOrder.get(i));
+                    exit = true;
+                }
+                i++;
+            }
+            else
+                exit = true;
+        }
+        return cardResult;
+    }
+
     public Card getTouchedCard(float x, float y){
 
         boolean exit = false;
@@ -103,7 +146,7 @@ public class Deck {
 
         while (i < numberOfCards && !exit){
             if (drawOrder.get(i) > -1){
-                if (cards.get(drawOrder.get(i)).isTouched(x,y)) {
+                if (cards.get(drawOrder.get(i)).isTouched(x, y)) {
 
                     this.result = cards.get(drawOrder.get(i)).getCardSprite();
                     cardResult = cards.get(drawOrder.get(i));

@@ -74,6 +74,10 @@ public class Card {
     }
 
     public boolean isTouched(float x, float y){
+        return this.getCardRectangle().contains(x, y);
+    }
+
+    public boolean isTouchedDragged(float x, float y){
         Rectangle r = this.getCardRectangle();
         float h = r.getHeight();
         float w = r.getWidth();
@@ -103,6 +107,12 @@ public class Card {
     }
 
     public void setPosition(Point position) {
+
+        this.cardSprite.setPosition(position.getX(), position.getY());
+        this.position.setCoordinates(position.getX(),position.getY());
+    }
+
+    public void setCenter(Point position) {
 
         this.cardSprite.setCenter(position.getX(), position.getY());
         this.position.setCoordinates(position.getX(),position.getY());
