@@ -47,8 +47,8 @@ public class Card {
     public Card(TextureRegion region, int id, TextureRegion backRegion) {
 
         this.card = region;
-        this.sizeX = 100f;
-        this.sizeY = 130f;
+        this.sizeX = 150f;
+        this.sizeY = 190f;
         this.position = new Point(100f, 100f);
         this.cardSprite = new Sprite(region);
         this.cardSprite.setSize(sizeX, sizeY);

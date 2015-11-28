@@ -196,8 +196,8 @@ public class Deck {
     public void shuffle(float x, float y){
         ArrayList<Integer> subDeck = new ArrayList<Integer>();
         Card c;
-        int top = numberOfCards - 1;
-        int i = numberOfCards - 1;
+        int top = numberOfCards-1;
+        int i = numberOfCards-1;
         int index = 0;
         boolean exit = false;
 
@@ -209,6 +209,7 @@ public class Deck {
                 subDeck.add(index,c.getId());
                 top = c.getId() - 1;
                 index++;
+                i--;
             }
         }
 
@@ -220,5 +221,9 @@ public class Deck {
 
     public HashMap<Integer,Integer> getDrawOrder() {
         return drawOrder;
+    }
+
+    public int getNumberOfCards() {
+        return numberOfCards;
     }
 }

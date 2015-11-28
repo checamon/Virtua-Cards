@@ -1,7 +1,7 @@
 package checamon.games.virtuacards;
 
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,15 +10,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.ArrayList;
 
-
-public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
+public class VirtuaCards extends Game implements InputProcessor {
 	private SpriteBatch batch;
-
 	private int dragCounter;
 	private int cardCounter;
 	private ArrayList<Point> dragBuffer;
 
 	private Deck fullDeck;
+
 
 	@Override
 	public void create () {
@@ -30,10 +29,10 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 		fullDeck = new Deck(new Texture("full_french_deck.png"));
 
 		//init drawn cards
-		for (int i = 0; i <= 53; i++)
+		for (int i = 0; i < fullDeck.getNumberOfCards(); i++)
 			fullDeck.getDrawOrder().put(i,i);
 
-		fullDeck.getCards().get(52).setPosition(new Point(300f,100f));
+		//fullDeck.getCards().get(52).setPosition(new Point(300f,100f));
 
 		fullDeck.shuffle(110f, 110f);
 
@@ -75,14 +74,13 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 
 			dragBuffer.add(dragCounter, new Point(screenX, Gdx.graphics.getHeight() - screenY));
 			dragCounter++;
-			cardCounter++;
+
 		}
 		else {
 			dragCounter = 0;
 			dragBuffer.clear();
-			cardCounter = 0;
 		}
-
+		cardCounter = 0;
 		return true;
 	}
 
@@ -129,7 +127,7 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 
 		dragCounter = 0;
 		dragBuffer.clear();
-		cardCounter = 0;
+		cardCounter = 1;
 
 
 		return true;
@@ -145,10 +143,14 @@ public class VirtuaCards extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
-		if (Point.pointListInsideDoubleTouchedDrag(dragBuffer, 75, 120) && dragCounter > 0) { //flip card
+		if (Point.pointListInsideDoubleTouchedDrag(dragBuffer, 75, 150) && dragCounter > 0) { //flip card
 			//fullDeck.getCards().get(52).setFaceUp(true);
 			fullDeck.getTouchedDraggedCard(screenX, Gdx.graphics.getHeight() - screenY).toggleFaceUp();
 		}
+		/*else// if (cardCounter == 1)
+		{
+			fullDeck.shuffle(screenX, Gdx.graphics.getHeight() - screenY);
+		}*/
 		dragCounter = 0;
 		dragBuffer.clear();
 		cardCounter = 0;
