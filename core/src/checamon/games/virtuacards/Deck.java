@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 
 
-
 /**
  * Created by angelcheca on 17/11/15.
  */
@@ -18,7 +17,7 @@ public class Deck {
     private ArrayList<Card> cards;
     private HashMap<Integer,Integer> drawOrder;
     private int numberOfCards;
-    //private ArrayList<Deck> subdecks;
+    private int deckCounter;
 
     public Deck(Texture texture) {
         try {
@@ -37,6 +36,7 @@ public class Deck {
             }
 
             this.numberOfCards = 54;
+            this.deckCounter = 1;
 
         }catch (Exception e)
         {
@@ -165,7 +165,7 @@ public class Deck {
             }
 
         //TODO Change this to not move to the top until is sure no other cards need to move
-        if (i < numberOfCards - 1)
+        if (i >= 0 && i < numberOfCards - 1)
             setCardDrawOrderOnTop(i);
         return cardResult;
     }
@@ -185,12 +185,25 @@ public class Deck {
                 }
         }
         //TODO Change this to not move to the top until is sure no other cards need to move
-        if (i < numberOfCards - 1)
+        if (i >= 0 && i < numberOfCards - 1)
             setCardDrawOrderOnTop(i);
 
         return cardResult;
     }
+    public Integer getTouchedCardIndex(float x, float y){
 
+        int i = numberOfCards - 1;
+        boolean exit = false;
+
+        while (i >= 0 && !exit){
+            if (drawOrder.get(i) > -1 && cards.get(drawOrder.get(i)).isTouched(x, y)) {
+                exit = true;
+            }else{
+                i--;
+            }
+        }
+        return (Integer)i;
+    }
     public Card getTouchedCard(float x, float y, int top){
 
         Card cardResult = null;
@@ -226,6 +239,25 @@ public class Deck {
             }
         }
     }
+    //TODO Make sure it orders the cards up to the top
+    private void setCardDrawOrderOnTopSubDeck(int index, int last){
+
+        int i = index;
+        int next = 0;
+        int replace = drawOrder.get(index);
+
+        while (i < last){
+            if (i < last - 1) {
+                next = drawOrder.get(i + 1);
+                drawOrder.put(i,next);
+                i++;
+            }else{
+                drawOrder.put(i,replace);
+                i++;
+
+            }
+        }
+    }
 
     private void setRandomCardDraw(ArrayList<Integer> subDeck){
         ArrayList<Integer> originalOrder = (ArrayList<Integer>) subDeck.clone();
@@ -235,8 +267,7 @@ public class Deck {
         for (int i = 0; i < originalOrder.size(); i++){
             replace = drawOrder.get(originalOrder.get(i));
             drawOrder.put(originalOrder.get(i),drawOrder.get(subDeck.get(i)));
-            if (i < originalOrder.size() - 1)
-                drawOrder.put(subDeck.get(i),replace);
+            drawOrder.put(subDeck.get(i),replace);
         }
 
     }
@@ -246,18 +277,16 @@ public class Deck {
 
         ArrayList<Integer> subDeck = new ArrayList<Integer>();
         Card c;
-        int top = numberOfCards-1;
         int i = numberOfCards-1;
         int index = 0;
         boolean exit = false;
 
         while (i >= 0  && !exit){
-            c = this.getTouchedCard(x,y,top);
+            c = this.getTouchedCard(x, y, i);
             if (c == null)
                 exit = true;
             else{
                 subDeck.add(index,c.getId());
-                top = c.getId() - 1;
                 index++;
                 i--;
             }
@@ -270,73 +299,141 @@ public class Deck {
     }
 
     public void moveDeckTouched(float x, float y){
-        Card c = getTouchedCard(x,y);
         Card card;
-        float deltaX;
-        float deltaY;
-
-        Rectangle r =  c.getCardRectangle();
-        c.setCenter(new Point(x,y));
-        Rectangle r2 = c.getCardRectangle();
-
-        deltaX = r2.getX() - r.getX();
-        deltaY = r2.getY() - r.getY();
+        int deckId = -1;
+        int cardDeck = -1;
+        int lastIndex = -1;
 
         //Move all cards in the deck
-        int i = c.getId() - 1;
+        int i =  getTouchedCardIndex(x,y);
+        lastIndex = i;
 
         while (i >= 0){
             card = cards.get(drawOrder.get(i));
-            if (drawOrder.get(i) > -1 && card.isTouched(x, y)) {
-                card.setPosition(new Point(card.getCardSprite().getX() + deltaX, card.getCardSprite().getY() + deltaY));
-            }else{
-                i--;
+            cardDeck = card.getDeckId();
+            if (cardDeck == deckId) {
+                card.setCenter(new Point(x, y));
+                setCardDrawOrderOnTopSubDeck(i, lastIndex);
+                lastIndex--;
             }
+            else if (deckId == -1){
+                if (drawOrder.get(i) > -1 && card.isTouched(x, y)) {
+                    deckId = card.getDeckId();
+                    card.setCenter(new Point(x, y));
+                }
+            }
+            i--;
         }
 
     }
 
     public void moveDeckTouchedDragged(float x, float y){
-        Card c = getTouchedCard(x,y);
         Card card;
-        float deltaX;
-        float deltaY;
-
-        Rectangle r =  c.getCardRectangle();
-        c.setCenter(new Point(x,y));
-        Rectangle r2 = c.getCardRectangle();
-
-        deltaX = r2.getX() - r.getX();
-        deltaY = r2.getY() - r.getY();
+        int deckId = -1;
+        int cardDeck = -1;
+        int lastIndex = -1;
 
         //Move all cards in the deck
-        int i = c.getId() - 1;
+        int i =  getTouchedCardIndex(x,y);
+        lastIndex = i;
 
         while (i >= 0){
             card = cards.get(drawOrder.get(i));
-            if (drawOrder.get(i) > -1 && card.isTouchedDragged(x, y)) {
-                card.setPosition(new Point(card.getCardSprite().getX() + deltaX, card.getCardSprite().getY() + deltaY));
+            cardDeck = card.getDeckId();
+            if (cardDeck == deckId) {
+                card.setCenter(new Point(x, y));
+                setCardDrawOrderOnTopSubDeck(i, lastIndex);
+                lastIndex--;
+            }
+            else if (deckId == -1){
+                if (drawOrder.get(i) > -1 && card.isTouchedDragged(x, y)) {
+                    deckId = card.getDeckId();
+                    card.setCenter(new Point(x, y));
+                }
+            }
+            i--;
+        }
+
+    }
+
+    public void setDeckPosition(int belowDeckId, int aboveDeckId, float x, float y){
+        Card card;
+        int cardDeck = -1;
+
+        //Move all cards in the deck
+        int i =  numberOfCards - 1;
+
+        while (i >= 0){
+            card = cards.get(drawOrder.get(i));
+            cardDeck = card.getDeckId();
+            if (cardDeck == aboveDeckId) {
+                card.setPosition(new Point(x, y));
+                card.setDeckId(belowDeckId);
+            }
+            i--;
+        }
+
+    }
+    public Card getTouchedCardDifferentDeck(float x, float y, int deckiId){
+        Card cardResult = null;
+        int i = numberOfCards - 1;
+        boolean exit = false;
+
+        while (i >= 0 && !exit){
+            cardResult = cards.get(drawOrder.get(i));
+            if (drawOrder.get(i) > -1 && cardResult.isTouched(x, y) && cardResult.getDeckId() != deckiId) {
+                exit = true;
             }else{
                 i--;
             }
         }
+        if (!exit)
+            cardResult = null;
+
+        return cardResult;
     }
 
-    public void autoDeckCard(float x, float y){
-        Card c = getTouchedCard(x,y);
-        Card below = getTouchedCard(x,y, numberOfCards - 2);
+
+
+    public void autoDeckCard(float x, float y) {
+        Card c = getTouchedCard(x, y);
+        Card below;
+        if (!c.isDecked()) {
+            below = getTouchedCard(x, y, numberOfCards - 2);
+        } else {
+            below = getTouchedCardDifferentDeck(x, y, c.getDeckId());
+        }
 
         // Detect if overlapping enough to deck automatically
         // by default cards are 150 x 190
-        if (below != null) {
+        if (below != null && !c.isDecked()) {
             if (((c.getCardSprite().getX() <= below.getCardSprite().getX() + 35) && (c.getCardSprite().getX() >= below.getCardSprite().getX() - 35)) &&
                     ((c.getCardSprite().getY() <= below.getCardSprite().getY() + 35) && (c.getCardSprite().getY() >= below.getCardSprite().getY() - 35))) {
                 Rectangle r = below.getCardRectangle();
                 c.setPosition(new Point(r.getX(), r.getY()));
                 c.setDecked(true);
-            }else{
-                c.setDecked(false);
+                if (below.getDeckId() == 0) {
+                    deckCounter++;
+                    below.setDecked(true);
+                    below.setDeckId(deckCounter);
+                    c.setDeckId(deckCounter);
+                } else {
+                    c.setDeckId(below.getDeckId());
+                }
             }
+        } else if (below != null && c.isDecked()) {
+            if (((c.getCardSprite().getX() <= below.getCardSprite().getX() + 35) && (c.getCardSprite().getX() >= below.getCardSprite().getX() - 35)) &&
+                    ((c.getCardSprite().getY() <= below.getCardSprite().getY() + 35) && (c.getCardSprite().getY() >= below.getCardSprite().getY() - 35))) {
+                Rectangle r = below.getCardRectangle();
+                if (below.getDeckId() == 0) {
+                    below.setDecked(true);
+                    below.setDeckId(c.getDeckId());
+                    setDeckPosition(c.getDeckId(), c.getDeckId(), r.getX(), r.getY());
+                } else {
+                    setDeckPosition(below.getDeckId(), c.getDeckId(), r.getX(), r.getY());
+                }
+            }
+            //TODO resetDeckIds(); complex to compute... not worth it
         }
     }
 
@@ -346,5 +443,13 @@ public class Deck {
 
     public int getNumberOfCards() {
         return numberOfCards;
+    }
+
+    public int getDeckCounter() {
+        return deckCounter;
+    }
+
+    public void setDeckCounter(int deckCounter) {
+        this.deckCounter = deckCounter;
     }
 }

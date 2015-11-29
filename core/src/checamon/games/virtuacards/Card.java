@@ -20,6 +20,7 @@ public class Card {
     private int id;
     private boolean faceUp;
     private boolean decked;
+    private int deckId;
     //private boolean onTable;
     //private float orientation;
 
@@ -59,6 +60,8 @@ public class Card {
         this.backSprite.setPosition(position.getX(), position.getY());
         this.id = id;
         this.faceUp = false;
+        this.decked = true;
+        this.deckId = 1;
     }
 
 
@@ -154,5 +157,13 @@ public class Card {
 
     public void setDecked(boolean decked) {
         this.decked = decked;
+    }
+
+    public int getDeckId() {
+        return deckId;
+    }
+
+    public void setDeckId(int deckId) {
+        this.deckId = deckId;
     }
 }

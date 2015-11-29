@@ -3,7 +3,6 @@ package checamon.games.virtuacards.android;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
@@ -22,7 +21,6 @@ public class AndroidLauncher extends AndroidApplication {
 		}
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         initialize(new VirtuaCards(),config);
-		Log.e("Error", "Error Test");
 	}
 	@TargetApi(19)
 	private void hideVirtualButtons() {

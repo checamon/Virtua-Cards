@@ -9,19 +9,15 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 /**
  * Created by angelcheca on 28/11/15.
  */
 public class VirtuaCardsMainMenu implements Screen, InputProcessor {
     final VirtuaCards game;
-    private boolean exitScreen;
     private Skin skin;
 
     private TextButton playButton;
@@ -31,11 +27,9 @@ public class VirtuaCardsMainMenu implements Screen, InputProcessor {
 
     public VirtuaCardsMainMenu (final VirtuaCards g){
         game = g;
-        exitScreen = false;
         skin = new Skin();
 
         Gdx.input.setInputProcessor(this);
-
 
         Pixmap pixmap = new Pixmap(400, 100, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.GREEN);
@@ -99,47 +93,29 @@ public class VirtuaCardsMainMenu implements Screen, InputProcessor {
         }
         game.batch.end();
 
-        if (exitScreen)
-            dispose();
     }
 
-    /**
-     * @param width
-     * @param height
-     * @see ApplicationListener#resize(int, int)
-     */
+
     @Override
     public void resize(int width, int height) {
 
     }
 
-    /**
-     * @see ApplicationListener#pause()
-     */
     @Override
     public void pause() {
 
     }
 
-    /**
-     * @see ApplicationListener#resume()
-     */
     @Override
     public void resume() {
 
     }
 
-    /**
-     * Called when this screen is no longer the current screen for a {@link Game}.
-     */
     @Override
     public void hide() {
 
     }
 
-    /**
-     * Called when this screen should release all resources.
-     */
     @Override
     public void dispose() {
     }
@@ -172,7 +148,7 @@ public class VirtuaCardsMainMenu implements Screen, InputProcessor {
         if (buttonClicked) // play button clicked
         {
             game.setScreen(new VirtuaCardsGameScreen(game));
-            exitScreen = true;
+            dispose();
         }
         else { // exit button clicked
             r.set(exitButton.getX(), exitButton.getY(), exitButton.getWidth(), exitButton.getHeight());
