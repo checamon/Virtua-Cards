@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
 
@@ -18,8 +19,9 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
     private ArrayList<Integer> cardsTouched;
     private VirtuaCards game;
 	private Deck fullDeck;
+    private int dragTriggered;
 
-
+    private Rectangle lastTouch;
 
 	public VirtuaCardsGameScreen (VirtuaCards g) {
         game = g;
@@ -27,6 +29,8 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
         cardsTouched = new ArrayList<Integer>();
 		dragCounter = 0;
 		cardCounter = 0;
+        dragTriggered = 0;
+        lastTouch = new Rectangle(0f, 0f, 0f, 0f);
 
         Gdx.input.setCatchBackKey(true);
         //Gdx.app.setLogLevel(Application.LOG_ERROR);
@@ -61,24 +65,23 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         Card c;
-        //deck
-
-        //Gdx.app.error("VirtuaCardsGameScreen", "TouchDragged");
-
-        if (dragCounter == 0) {
+        boolean ignore = false;
+        dragTriggered++;
+        Gdx.app.error("VirtuaCardsGameScreen", "TouchDragged");
+        if (dragTriggered < 5){
+            ignore = true;
+        }else  if (dragCounter == 0) {
             if (fullDeck.isTouchingCard(screenX, Gdx.graphics.getHeight() - screenY)) {
                 c = fullDeck.getTouchedCard(screenX, Gdx.graphics.getHeight() - screenY);
                 if (cardCounter == 2) { // Move deck of cards
                     if (cardsTouched.get(0).equals(cardsTouched.get(1)) && c.isDecked()) {
                         fullDeck.moveDeckTouched(screenX, Gdx.graphics.getHeight() - screenY);
-                    }
-                    else {
+                    } else {
                         c.setCenter(new Point(screenX, Gdx.graphics.getHeight() - screenY));
                         c.setDecked(false);
                         c.setDeckId(0);
                     }
-                }
-                else {
+                } else {
                     c.setCenter(new Point(screenX, Gdx.graphics.getHeight() - screenY));
                     c.setDecked(false);
                     c.setDeckId(0);
@@ -114,7 +117,7 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
             cardsTouched.clear();
             cardCounter = 0;
         }
-        return true;
+        return ignore;
     }
 
     @Override
@@ -141,12 +144,13 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
         Card c;
         dragCounter = 0;
         dragBuffer.clear();
-        //Gdx.app.error("VirtuaCardsGameScreen", "TouchDown");
+        Gdx.app.error("VirtuaCardsGameScreen", "TouchDown");
 
         c = fullDeck.getTouchedCard(screenX, Gdx.graphics.getHeight() - screenY);
         if (c != null){
             cardsTouched.add(cardCounter,c.getId());
             cardCounter++;
+            lastTouch = c.getCardRectangle();
         }else{
             cardsTouched.clear();
             cardCounter = 0;
@@ -158,7 +162,7 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         Card c;
-        //Gdx.app.error("VirtuaCardsGameScreen", "TouchUp");
+        Gdx.app.error("VirtuaCardsGameScreen", "TouchUp");
         if (dragCounter > 0) {
             c =	fullDeck.getTouchedDraggedCard(screenX, Gdx.graphics.getHeight() - screenY);
             if (c != null) {
@@ -197,6 +201,8 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
             dragBuffer.clear();
 
         }
+        if (dragTriggered > 0)
+            dragTriggered = 0;
 
         return true;
     }
@@ -242,4 +248,5 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
     public void dispose() {
 
     }
+
 }
