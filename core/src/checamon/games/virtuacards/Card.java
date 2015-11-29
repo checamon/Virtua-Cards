@@ -19,6 +19,7 @@ public class Card {
     private float sizeY;
     private int id;
     private boolean faceUp;
+    private boolean decked;
     //private boolean onTable;
     //private float orientation;
 
@@ -60,22 +61,6 @@ public class Card {
         this.faceUp = false;
     }
 
-/*
-    public void drawCardSprite(SpriteBatch batch,Point point, float sizeX, float sizeY){
-        this.cardSprite.setPosition(point.getX(), point.getY());
-        this.cardSprite.setSize(sizeX, sizeY);
-        this.cardSprite.draw(batch);
-        //this.position = point;
-    }
-
-    public void drawCardSprite(SpriteBatch batch, float sizeX, float sizeY){
-        this.cardSprite.setPosition(this.position.getX(), this.position.getY());
-        this.cardSprite.setSize(sizeX, sizeY);
-        this.cardSprite.draw(batch);
-        //this.sizeX = sizeX;
-        //this.sizeY = sizeY;
-    }
-*/
 
     public void drawCardSprite(SpriteBatch batch){
         //this.cardSprite.setCenter(this.cardSprite.getX() + 1, this.cardSprite.getY() + 1);
@@ -161,5 +146,13 @@ public class Card {
 
     public void setBackSprite(Sprite backSprite) {
         this.backSprite = backSprite;
+    }
+
+    public boolean isDecked() {
+        return decked;
+    }
+
+    public void setDecked(boolean decked) {
+        this.decked = decked;
     }
 }
