@@ -18,6 +18,7 @@ public class Deck {
     private HashMap<Integer,Integer> drawOrder;
     private int numberOfCards;
     private int deckCounter;
+    private int stackCounter;
 
     public Deck(Texture texture) {
         try {
@@ -37,6 +38,7 @@ public class Deck {
 
             this.numberOfCards = 54;
             this.deckCounter = 1;
+            this.stackCounter = 0;
 
         }catch (Exception e)
         {
@@ -190,6 +192,7 @@ public class Deck {
 
         return cardResult;
     }
+
     public Integer getTouchedCardIndex(float x, float y){
 
         int i = numberOfCards - 1;
@@ -204,6 +207,22 @@ public class Deck {
         }
         return (Integer)i;
     }
+
+    public Integer getCardIndex(Card c){
+        int i = numberOfCards - 1;
+        boolean exit = false;
+
+        while (i >= 0 && !exit){
+            if (drawOrder.get(i) == c.getId()) {
+                exit = true;
+            }else{
+                i--;
+            }
+        }
+        return (Integer)i;
+
+    }
+
     public Card getTouchedCard(float x, float y, int top){
 
         Card cardResult = null;
@@ -221,59 +240,7 @@ public class Deck {
         return cardResult;
     }
 
-    private void setCardDrawOrderOnTop(int index){
-
-        int i = index;
-        int next = 0;
-        int replace = drawOrder.get(index);;
-
-        while (i < numberOfCards){
-            if (i < numberOfCards-1) {
-                next = drawOrder.get(i + 1);
-                drawOrder.put(i,next);
-                i++;
-            }else{
-                drawOrder.put(i,replace);
-                i++;
-
-            }
-        }
-    }
-    //TODO Make sure it orders the cards up to the top
-    private void setCardDrawOrderOnTopSubDeck(int index, int last){
-
-        int i = index;
-        int next = 0;
-        int replace = drawOrder.get(index);
-
-        while (i < last){
-            if (i < last - 1) {
-                next = drawOrder.get(i + 1);
-                drawOrder.put(i,next);
-                i++;
-            }else{
-                drawOrder.put(i,replace);
-                i++;
-
-            }
-        }
-    }
-
-    private void setRandomCardDraw(ArrayList<Integer> subDeck){
-        ArrayList<Integer> originalOrder = (ArrayList<Integer>) subDeck.clone();
-
-        Collections.shuffle(subDeck);
-        Integer replace;
-        for (int i = 0; i < originalOrder.size(); i++){
-            replace = drawOrder.get(originalOrder.get(i));
-            drawOrder.put(originalOrder.get(i),drawOrder.get(subDeck.get(i)));
-            drawOrder.put(subDeck.get(i),replace);
-        }
-
-    }
-
     public void shuffle(float x, float y){
-        //TODO Change this method, the top may not work when cards already unsorted
 
         ArrayList<Integer> subDeck = new ArrayList<Integer>();
         Card c;
@@ -374,6 +341,7 @@ public class Deck {
         }
 
     }
+
     public Card getTouchedCardDifferentDeck(float x, float y, int deckiId){
         Card cardResult = null;
         int i = numberOfCards - 1;
@@ -392,8 +360,6 @@ public class Deck {
 
         return cardResult;
     }
-
-
 
     public void autoDeckCard(float x, float y) {
         Card c = getTouchedCard(x, y);
@@ -437,6 +403,32 @@ public class Deck {
         }
     }
 
+    public void autoStackCard(float x, float y){
+
+    }
+
+    public void toggleFaceUpDeck(Card c, boolean originalDecked, float x, float y){
+        int deckId = c.getDeckId();
+        int i = numberOfCards - 1;
+        int cardDeck;
+        boolean exit = false;
+        Card card;
+
+        if (!originalDecked){
+            c.toggleFaceUp();
+        }
+        else{
+            while (i >= 0 && !exit){
+                card = cards.get(drawOrder.get(i));
+                cardDeck = card.getDeckId();
+                if (cardDeck == deckId) {
+                    card.toggleFaceUp();
+                }
+                i--;
+            }
+        }
+    }
+
     public HashMap<Integer,Integer> getDrawOrder() {
         return drawOrder;
     }
@@ -452,4 +444,56 @@ public class Deck {
     public void setDeckCounter(int deckCounter) {
         this.deckCounter = deckCounter;
     }
+
+    private void setCardDrawOrderOnTop(int index){
+
+        int i = index;
+        int next = 0;
+        int replace = drawOrder.get(index);;
+
+        while (i < numberOfCards){
+            if (i < numberOfCards-1) {
+                next = drawOrder.get(i + 1);
+                drawOrder.put(i,next);
+                i++;
+            }else{
+                drawOrder.put(i,replace);
+                i++;
+
+            }
+        }
+    }
+
+    private void setCardDrawOrderOnTopSubDeck(int index, int last){
+
+        int i = index;
+        int next = 0;
+        int replace = drawOrder.get(index);
+
+        while (i < last){
+            if (i < last - 1) {
+                next = drawOrder.get(i + 1);
+                drawOrder.put(i,next);
+                i++;
+            }else{
+                drawOrder.put(i,replace);
+                i++;
+
+            }
+        }
+    }
+
+    private void setRandomCardDraw(ArrayList<Integer> subDeck){
+        ArrayList<Integer> originalOrder = (ArrayList<Integer>) subDeck.clone();
+
+        Collections.shuffle(subDeck);
+        Integer replace;
+        for (int i = 0; i < originalOrder.size(); i++){
+            replace = drawOrder.get(originalOrder.get(i));
+            drawOrder.put(originalOrder.get(i),drawOrder.get(subDeck.get(i)));
+            drawOrder.put(subDeck.get(i),replace);
+        }
+
+    }
+
 }

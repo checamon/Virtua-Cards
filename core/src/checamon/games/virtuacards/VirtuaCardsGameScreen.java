@@ -162,15 +162,17 @@ public class VirtuaCardsGameScreen implements Screen, InputProcessor {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         Card c;
+        boolean decked = false;
         Gdx.app.error("VirtuaCardsGameScreen", "TouchUp");
         if (dragCounter > 0) {
             c =	fullDeck.getTouchedDraggedCard(screenX, Gdx.graphics.getHeight() - screenY);
             if (c != null) {
+                decked = c.isDecked();
                 fullDeck.autoDeckCard(screenX, Gdx.graphics.getHeight() - screenY);
 
                 if (Point.pointListInsideDoubleTouchedDrag(dragBuffer, 75, 150)) { //flip card
-                    //fullDeck.getCards().get(52).setFaceUp(true);
-                    c.toggleFaceUp();
+                    fullDeck.toggleFaceUpDeck(c, decked, screenX, Gdx.graphics.getHeight() - screenY);
+                    //c.toggleFaceUp();
                 }
 
                 if (cardCounter > 0){

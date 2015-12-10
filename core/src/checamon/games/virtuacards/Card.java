@@ -21,6 +21,8 @@ public class Card {
     private boolean faceUp;
     private boolean decked;
     private int deckId;
+    private boolean stacked;
+    private int stackid;
     //private boolean onTable;
     //private float orientation;
 
@@ -62,6 +64,8 @@ public class Card {
         this.faceUp = false;
         this.decked = true;
         this.deckId = 1;
+        this.stacked = false;
+        this.stackid = 0;
     }
 
 
@@ -165,5 +169,24 @@ public class Card {
 
     public void setDeckId(int deckId) {
         this.deckId = deckId;
+    }
+
+    public void setStackid(int stackid) {
+        this.stackid = stackid;
+    }
+
+    public void setStacked(boolean stacked) {
+
+        this.stacked = stacked;
+    }
+
+    public int getStackid() {
+
+        return stackid;
+    }
+
+    public boolean isStacked() {
+
+        return stacked;
     }
 }
